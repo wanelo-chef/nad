@@ -1,0 +1,52 @@
+#!/bin/bash
+
+PID=`pgrep -f "node /opt/omni/sbin/nad -c /opt/omni/etc/node-agent.d"`
+EXEC="/opt/omni/sbin/nad -c /opt/omni/etc/node-agent.d -p <%= node[:nad][:interface][:private] %>:2609 &"
+
+start() {
+    if [ $PID ]; then
+        echo "nad is already running"
+    else
+        echo "Starting nad..."
+        eval $EXEC
+    fi
+}
+
+stop() {
+    if [ $PID ]; then
+        echo "Stopping ..."
+        kill -9 $PID
+        while [ -x /proc/${PID} ]
+        do
+            echo "Waiting for nad to shutdown ..."
+            sleep 1
+        done
+        echo "Stopped."
+    else
+        echo "nad not running, exiting..."
+        exit 0
+    fi
+}
+
+restart() {
+        stop
+        start
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload)
+    restart
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
