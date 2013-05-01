@@ -20,14 +20,14 @@
 include_recipe "ipaddr_extensions"
 
 git "/var/tmp/nad" do
-  repository "git://github.com/omniti-labs/nad.git"
-  reference "master"
+  repository "git://github.com/wanelo/nad.git"
+  reference "listen_address_smf_variable"
   action :checkout
 end
 
 execute "make and install nad binary" do
   command "cd /var/tmp/nad && `which make` install"
-  not_if "ls /opt/omni/etc/node-agent.d"
+  not_if "ls /opt/circonus/etc/node-agent.d"
 end
 
 execute "install nad man page" do
@@ -38,78 +38,79 @@ end
 case node['platform']
 when "smartos", "solaris2"
   execute "compile C-extensions" do
-    command "source /root/.profile && cd /opt/omni/etc/node-agent.d/smartos && `which test` -f Makefile && `which make`"
-    not_if "ls /opt/omni/etc/node-agent.d/smartos/aggcpu.elf"
+    command "source /root/.profile && cd /opt/circonus/etc/node-agent.d/illumos && `which test` -f Makefile && `which make`"
+    not_if "ls /opt/circonus/etc/node-agent.d/illumos/aggcpu.elf"
   end
 
-  template "/opt/omni/etc/node-agent.d/smartos/link.sh" do
+  template "/opt/circonus/etc/node-agent.d/illumos/link.sh" do
     source "link.sh.erb"
     mode "0755"
   end
 
-  template "/opt/omni/etc/node-agent.d/smartos/memory.sh" do
+  template "/opt/circonus/etc/node-agent.d/illumos/memory.sh" do
     source "memory.sh.erb"
     mode "0755"
   end
 
-  template "/opt/omni/etc/node-agent.d/smartos/disk.sh" do
+  template "/opt/circonus/etc/node-agent.d/illumos/disk.sh" do
     source "disk.sh.erb"
     mode "0755"
   end
 
-  file "/opt/omni/etc/node-agent.d/smartos/zone_vfs.sh" do
+  file "/opt/circonus/etc/node-agent.d/illumos/zone_vfs.sh" do
     mode "0755"
   end
 
-  link "/opt/omni/etc/node-agent.d/aggcpu.elf" do
-    to "/opt/omni/etc/node-agent.d/smartos/aggcpu.elf"
+  link "/opt/circonus/etc/node-agent.d/aggcpu.elf" do
+    to "/opt/circonus/etc/node-agent.d/illumos/aggcpu.elf"
     notifies :restart, "service[nad]"
   end
 
-  link "/opt/omni/etc/node-agent.d/sdinfo.sh" do
-    to "/opt/omni/etc/node-agent.d/smartos/sdinfo.sh"
+  link "/opt/circonus/etc/node-agent.d/sdinfo.sh" do
+    to "/opt/circonus/etc/node-agent.d/illumos/sdinfo.sh"
     notifies :restart, "service[nad]"
   end
 
-  link "/opt/omni/etc/node-agent.d/zfsinfo.sh" do
-    to "/opt/omni/etc/node-agent.d/smartos/zfsinfo.sh"
+  link "/opt/circonus/etc/node-agent.d/zfsinfo.sh" do
+    to "/opt/circonus/etc/node-agent.d/illumos/zfsinfo.sh"
     notifies :restart, "service[nad]"
   end
 
-  link "/opt/omni/etc/node-agent.d/vminfo.sh" do
-    to "/opt/omni/etc/node-agent.d/smartos/vminfo.sh"
+  link "/opt/circonus/etc/node-agent.d/vminfo.sh" do
+    to "/opt/circonus/etc/node-agent.d/illumos/vminfo.sh"
     notifies :restart, "service[nad]"
   end
 
-  link "/opt/omni/etc/node-agent.d/link.sh" do
-    to "/opt/omni/etc/node-agent.d/smartos/link.sh"
+  link "/opt/circonus/etc/node-agent.d/link.sh" do
+    to "/opt/circonus/etc/node-agent.d/illumos/link.sh"
     notifies :restart, "service[nad]"
   end
 
-  link "/opt/omni/etc/node-agent.d/memory.sh" do
-    to "/opt/omni/etc/node-agent.d/smartos/memory.sh"
+  link "/opt/circonus/etc/node-agent.d/memory.sh" do
+    to "/opt/circonus/etc/node-agent.d/illumos/memory.sh"
     notifies :restart, "service[nad]"
   end
 
-  link "/opt/omni/etc/node-agent.d/disk.sh" do
-    to "/opt/omni/etc/node-agent.d/smartos/disk.sh"
+  link "/opt/circonus/etc/node-agent.d/disk.sh" do
+    to "/opt/circonus/etc/node-agent.d/illumos/disk.sh"
     notifies :restart, "service[nad]"
   end
 
-  link "/opt/omni/etc/node-agent.d/zone_vfs.sh" do
-    to "/opt/omni/etc/node-agent.d/smartos/zone_vfs.sh"
+  link "/opt/circonus/etc/node-agent.d/zone_vfs.sh" do
+    to "/opt/circonus/etc/node-agent.d/illumos/zone_vfs.sh"
     notifies :restart, "service[nad]"
   end
 
-  template "/tmp/nad.xml" do
-    source "nad.erb"
-  end
-
-  execute "import the nad smf manifest" do
-    # using our own template here to prevent exposing stuff to the world
-    #command "svccfg import /var/tmp/nad/smf/nad.xml && svcadm enable nad"
-    command "svccfg import /tmp/nad.xml"
-    not_if "svcs -a | grep nad"
+  bash "install, import and configure the nad smf manifest" do
+    user "root"
+    code <<-EOH
+    cp /var/tmp/nad/smf/nad.xml /opt/local/share/smf/nad.xml
+    svccfg import /opt/local/share/smf/nad.xml
+    svccfg -s nad setprop config/listen_address = astring: #{node['privateaddress']}:2609
+    svcadm refresh nad
+    EOH
+    notifies :restart, "service[nad]"
+    not_if "diff /var/tmp/nad/smf/nad.xml /opt/local/share/smf/nad.xml"
   end
 
 when "ubuntu", "debian"
