@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: nad
-# Recipe:: postgres
+# Recipe:: autofs
 #
 # Copyright 2012, ModCloth, Inc.
 #

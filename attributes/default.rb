@@ -1,2 +1,9 @@
-default[:nad][:interface][:private] = `ifconfig -a | egrep '192.168\|10.[0-9]\|172.16' | grep inet | awk '{print $2}'`.strip.to_s
+default[:nad][:interface][:private] = node["privateaddress"]
 default[:nad][:autofs][:shares] = ["/net/filer/export/share0", "/net/filer/export/share1"]
+
+case node['platform']
+when "ubuntu", "debian"
+  default['nad']['man_path'] = "/usr/share/man"
+when "smartos", "solaris2"
+  default['nad']['man_path'] = "/opt/local/man"
+end
