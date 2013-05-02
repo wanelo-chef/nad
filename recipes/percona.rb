@@ -9,8 +9,8 @@
 
 include_recipe "nad::default"
 
-template "/opt/omni/etc/node-agent.d/percona.sh" do
+template "/opt/circonus/etc/node-agent.d/percona.sh" do
   source "percona.sh.erb"
   mode "0755"
-  notifies :restart, "service[circonus/nad]"
+  notifies :restart, "service[nad]"
 end

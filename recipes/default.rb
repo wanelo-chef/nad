@@ -20,13 +20,12 @@
 include_recipe "ipaddr_extensions"
 
 git "/var/tmp/nad" do
-  repository "git://github.com/wanelo/nad.git"
-  reference "listen_address_smf_variable"
-  action :checkout
+  repository "git://github.com/circonus-labs/nad.git"
+  reference "master"
 end
 
 execute "make and install nad binary" do
-  command "cd /var/tmp/nad && `which make` install"
+  command "cd /var/tmp/nad && make install"
   not_if "ls /opt/circonus/etc/node-agent.d"
 end
 
@@ -38,7 +37,7 @@ end
 case node['platform']
 when "smartos", "solaris2"
   execute "compile C-extensions" do
-    command "source /root/.profile && cd /opt/circonus/etc/node-agent.d/illumos && `which test` -f Makefile && `which make`"
+    command "source /root/.profile && cd /opt/circonus/etc/node-agent.d/illumos && test -f Makefile && make"
     not_if "ls /opt/circonus/etc/node-agent.d/illumos/aggcpu.elf"
   end
 
