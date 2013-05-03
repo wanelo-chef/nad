@@ -116,6 +116,7 @@ when "ubuntu", "debian"
   template "/etc/init.d/nad" do
     source "nad.init.erb"
     mode 0755
+    notifies :restart, "service[nad]"
   end
 end
 
