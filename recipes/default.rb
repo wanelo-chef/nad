@@ -37,7 +37,7 @@ end
 case node['platform']
 when "smartos", "solaris2"
   execute "compile C-extensions" do
-    command "source /root/.profile && cd /opt/circonus/etc/node-agent.d/illumos && test -f Makefile && make"
+    command "cd /opt/circonus/etc/node-agent.d/illumos && test -f Makefile && make"
     not_if "ls /opt/circonus/etc/node-agent.d/illumos/aggcpu.elf"
   end
 
