@@ -60,6 +60,11 @@ when "smartos", "solaris2"
     mode "0755"
   end
 
+  link "/opt/circonus/etc/node-agent.d/if.sh" do
+    to "/opt/circonus/etc/node-agent.d/illumos/if.sh"
+    notifies :restart, "service[nad]"
+  end
+
   link "/opt/circonus/etc/node-agent.d/aggcpu.elf" do
     to "/opt/circonus/etc/node-agent.d/illumos/aggcpu.elf"
     notifies :restart, "service[nad]"
