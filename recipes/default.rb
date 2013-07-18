@@ -19,6 +19,11 @@
 
 include_recipe "ipaddr_extensions"
 
+case node['platform']
+when "smartos", "solaris2"
+  include_recipe "smf"
+end
+
 git "/var/tmp/nad" do
   repository "git://github.com/circonus-labs/nad.git"
   reference "master"
@@ -26,7 +31,7 @@ end
 
 execute "make and install nad binary" do
   command "cd /var/tmp/nad && make install"
-  not_if "ls /opt/circonus/etc/node-agent.d"
+  not_if "ls #{node['nad']['path']}/etc/node-agent.d"
 end
 
 execute "install nad man page" do
@@ -37,8 +42,8 @@ end
 case node['platform']
 when "smartos", "solaris2"
   execute "compile C-extensions" do
-    command "cd /opt/circonus/etc/node-agent.d/illumos && test -f Makefile && make"
-    not_if "ls /opt/circonus/etc/node-agent.d/illumos/aggcpu.elf"
+    command "cd #{node['nad']['path']}/etc/node-agent.d/illumos && test -f Makefile && make PREFIX=/opt/circonus"
+    not_if "ls #{node['nad']['path']}/etc/node-agent.d/illumos/aggcpu.elf"
   end
 
   template "/opt/circonus/etc/node-agent.d/illumos/link.sh" do
@@ -105,16 +110,13 @@ when "smartos", "solaris2"
     notifies :restart, "service[nad]"
   end
 
-  bash "install, import and configure the nad smf manifest" do
-    user "root"
-    code <<-EOH
-    cp /var/tmp/nad/smf/nad.xml /opt/local/share/smf/nad.xml
-    svccfg import /opt/local/share/smf/nad.xml
-    svccfg -s nad setprop config/listen_address = astring: #{node['privateaddress']}:2609
-    svcadm refresh nad
-    EOH
-    notifies :restart, "service[nad]"
-    not_if "diff /var/tmp/nad/smf/nad.xml /opt/local/share/smf/nad.xml"
+  smf "nad" do
+    user "nobody"
+    start_command "#{node['nad']['path']}/sbin/nad -c #{node['nad']['path']}/node-agent.d -p #{node['privateaddress']}:#{node['nad']['port']}"
+    environment "HOME" => "#{node['nad']['path']}/etc",
+                "PATH" => "/usr/xpg4/bin:/usr/bin:/usr/sbin:/sbin:/usr/sfw/bin:/usr/local/bin:#{node['nad']['path']}/bin",
+                "NODE_PATH" => "#{node['nad']['path']}/node_modules"
+    manifest_type "application"
   end
 
 when "ubuntu", "debian"
