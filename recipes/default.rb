@@ -114,11 +114,9 @@ when "smartos", "solaris2"
     user "nobody"
     start_command "#{node['nad']['path']}/sbin/nad -c #{node['nad']['path']}/etc/node-agent.d -p #{node['privateaddress']}:#{node['nad']['port']}"
     environment "HOME" => "#{node['nad']['path']}/etc",
-                "NODE_PATH" => "#{node['nad']['path']}/etc/node_modules",
-                "PATH" => "/usr/xpg4/bin:/usr/bin:/usr/sbin:/sbin:/usr/sfw/bin:/usr/local/bin:#{node['nad']['path']}/bin"
+                "PATH" => "/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin",
+                "NODE_PATH" => "#{node['nad']['path']}/etc/node_modules"
     manifest_type "application"
-    start_timeout 60
-    stop_timeout 60
     duration "child"
   end
 
