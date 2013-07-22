@@ -2,7 +2,7 @@
 
 export NODE_PATH="/opt/circonus/etc/node_modules"
 PID=`pgrep -f "sbin/nad -c "`
-EXEC="/opt/circonus/sbin/nad -c /opt/circonus/etc/node-agent.d -p <%= node[:nad][:interface][:private] %>:2609 &"
+EXEC="/opt/circonus/sbin/nad -c /opt/circonus/etc/node-agent.d -p <%= node['privateaddress'] %>:2609 &"
 
 start() {
     if [ $PID ]; then
