@@ -17,7 +17,8 @@
 # limitations under the License.
 #
 
-include_recipe "ipaddr_extensions"
+include_recipe 'ipaddr_extensions'
+include_recipe 'nodejs'
 
 case node['platform']
 when "smartos", "solaris2"
