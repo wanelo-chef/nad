@@ -116,7 +116,7 @@ when "smartos", "solaris2"
     start_command "#{node['nad']['path']}/sbin/nad -c #{node['nad']['path']}/etc/node-agent.d -p #{node['privateaddress']}:#{node['nad']['port']}"
     environment "HOME" => "#{node['nad']['path']}/etc",
                 "PATH" => "/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin",
-                "NODE_PATH" => "#{node['nad']['path']}/etc/node_modules"
+                "NODE_PATH" => "#{node['nad']['path']}/lib/node_modules:#{node['nad']['path']}/etc/node_modules"
     manifest_type "application"
     duration "child"
   end
