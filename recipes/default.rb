@@ -27,7 +27,7 @@ end
 
 git "/var/tmp/nad" do
   repository "git://github.com/circonus-labs/nad.git"
-  reference "master"
+  reference node['nad']['reference']
 end
 
 execute "make and install nad binary" do
