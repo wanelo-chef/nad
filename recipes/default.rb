@@ -119,7 +119,10 @@ when "smartos", "solaris2"
                 "NODE_PATH" => "#{node['nad']['path']}/lib/node_modules:#{node['nad']['path']}/etc/node_modules"
     manifest_type "application"
     duration "child"
+    notifies :restart, 'service[nad]'
   end
+
+  service 'nad'
 
 when "ubuntu", "debian"
   template "/etc/init.d/nad" do
