@@ -66,6 +66,10 @@ for backend in $backends; do
   echo -e "${PREFIX}request_count\tL\t${DATA[48]}"
   echo -e "${PREFIX}client_aborts\tL\t${DATA[49]}"
   echo -e "${PREFIX}server_aborts\tL\t${DATA[50]}"
+  echo -e "${PREFIX}queue_time\tL\t${DATA[58]}"
+  echo -e "${PREFIX}connect_time\tL\t${DATA[59]}"
+  echo -e "${PREFIX}request_time\tL\t${DATA[60]}"
+  echo -e "${PREFIX}total_time\tL\t${DATA[61]}"
 
 done
 
