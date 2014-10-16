@@ -1,3 +1,4 @@
+name             'nad'
 maintainer       'ModCloth, Inc.'
 maintainer_email 'b.irvin@modcloth.com'
 license          'Apache 2.0'
