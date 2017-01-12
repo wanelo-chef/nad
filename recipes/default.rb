@@ -26,7 +26,9 @@ when "smartos", "solaris2"
 end
 
 git "/var/tmp/nad" do
-  repository "git://github.com/circonus-labs/nad.git"
+  # switch back to circonus-labs/nad when
+  # https://github.com/circonus-labs/nad/issues/90 gets resolved
+  repository "git://github.com/hjhart/nad.git"
   reference node['nad']['reference']
 end
 
